@@ -14,4 +14,6 @@ interface IMyAidlInterface {
     List<User> getAllUsers();
     List<RecentBox> getAllRecentBox();
     List<Message> getAllMessage();
+    int addUser(in User user);
+    void addRecentBox(in RecentBox recentBox);
 }
