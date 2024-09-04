@@ -4,6 +4,7 @@ package com.example.finalmockserver;
 import com.example.finalmockserver.model.Message;
 import com.example.finalmockserver.model.User;
 import com.example.finalmockserver.model.RecentBox;
+import com.example.finalmockserver.IUserStatusCallback;
 import java.util.List;
 
 interface IMyAidlInterface {
@@ -16,4 +17,7 @@ interface IMyAidlInterface {
     List<Message> getAllMessage();
     int addUser(in User user);
     void addRecentBox(in RecentBox recentBox);
+    void updateUserStatus(int userId, String status);
+    void registerUserStatusCallback(IUserStatusCallback callback);
+    void unregisterUserStatusCallback(IUserStatusCallback callback);
 }

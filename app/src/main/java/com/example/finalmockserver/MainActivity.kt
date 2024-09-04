@@ -12,11 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.finalmockserver.ui.theme.FinalMockServerTheme
+import com.example.finalmockserver.utils.SampleData
+import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var sampleData: SampleData
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        sampleData.populateInitialData()
+
         setContent {
             FinalMockServerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
