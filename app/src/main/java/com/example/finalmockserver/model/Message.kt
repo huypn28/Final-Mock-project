@@ -7,6 +7,8 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+
+//Updated
 @Entity(
     tableName = "message",
     foreignKeys = [
@@ -27,16 +29,16 @@ import androidx.room.PrimaryKey
 )
 data class Message(
     @PrimaryKey(autoGenerate = true) val messageId: Int = 0,
-    val senderId: Int?,
-    val receiverId: Int?,
-    val message: String?,
-    val time: String?,
-    val deleted_by_user_id: List<String>?
-): Parcelable {
+    val senderId: Int,
+    val receiverId: Int,
+    val message: String? = "",
+    val time: String? = "",
+    val deletedByUserId: List<String>? = emptyList()
+) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
-        parcel.readValue(Int::class.java.classLoader) as? Int,
-        parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readInt(),
+        parcel.readInt(),
         parcel.readString(),
         parcel.readString(),
         parcel.createStringArrayList()
@@ -45,11 +47,11 @@ data class Message(
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(messageId)
-        parcel.writeValue(senderId)
-        parcel.writeValue(receiverId)
+        parcel.writeInt(senderId)
+        parcel.writeInt(receiverId)
         parcel.writeString(message)
         parcel.writeString(time)
-        parcel.writeStringList(deleted_by_user_id)
+        parcel.writeStringList(deletedByUserId)
     }
 
     override fun describeContents(): Int {
@@ -66,4 +68,3 @@ data class Message(
         }
     }
 }
-

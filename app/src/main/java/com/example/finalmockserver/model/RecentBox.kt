@@ -13,52 +13,37 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = User::class,
             parentColumns = ["userId"],
-            childColumns = ["senderId"],
+            childColumns = ["user1Id"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = User::class,
             parentColumns = ["userId"],
-            childColumns = ["receiverId"],
+            childColumns = ["user2Id"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["senderId"]), Index(value = ["receiverId"])]
+    indices = [Index(value = ["user1Id"]), Index(value = ["user2Id"])]
 )
 data class RecentBox(
     @PrimaryKey(autoGenerate = true) val recentBoxId: Int = 0,
-    val receiverId: Int?,
-    val receiverImage: String?,
-    val time: String?,
-    val name: String?,
-    val senderId: Int?,
-    val lastestmessage: String?,
-    val lastChattingPerson: String?,
-    val receiverStatus: String?
+    val user1Id: Int,
+    val user2Id: Int,
+    val lastMessageId: Int,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
-        parcel.readValue(Int::class.java.classLoader) as? Int,
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readValue(Int::class.java.classLoader) as? Int,
-        parcel.readString(),
-        parcel.readString(),
-        parcel.readString()
+        parcel.readInt(),
+        parcel.readInt(),
+        parcel.readInt()
     ) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(recentBoxId)
-        parcel.writeValue(receiverId)
-        parcel.writeString(receiverImage)
-        parcel.writeString(time)
-        parcel.writeString(name)
-        parcel.writeValue(senderId)
-        parcel.writeString(lastestmessage)
-        parcel.writeString(lastChattingPerson)
-        parcel.writeString(receiverStatus)
+        parcel.writeInt(user1Id)
+        parcel.writeInt(user2Id)
+        parcel.writeInt(lastMessageId)
     }
 
     override fun describeContents(): Int {
@@ -75,4 +60,3 @@ data class RecentBox(
         }
     }
 }
-

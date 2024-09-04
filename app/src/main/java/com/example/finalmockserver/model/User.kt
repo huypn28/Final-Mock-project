@@ -5,20 +5,20 @@ import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+
 @Entity(tableName = "user")
 data class User(
     @PrimaryKey(autoGenerate = true) val userId: Int = 0,
-    val status: String?,
-    val imageUrl: String?,
-    val username: String?
+    val status: String? = "Offline",
+    val imageUrl: String? = "",
+    val username: String? = ""
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readString(),
         parcel.readString(),
         parcel.readString()
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(userId)
