@@ -16,4 +16,7 @@ interface RecentBoxDao {
     @Query("SELECT * FROM recentbox WHERE user1Id = :userId OR user2Id = :userId")
     fun getRecentBoxesForUser(userId: Int): List<RecentBox> //add new
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecentBoxes(recentBoxes: List<RecentBox>)
+
 }

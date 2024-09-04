@@ -23,6 +23,7 @@ interface UserDao {
     @Delete
     suspend fun deleteUser(user: User)
 
+
     @Query("SELECT * FROM user WHERE userId != :userId")
     suspend fun getAllUsersExcept(userId: Int): List<User>
 
