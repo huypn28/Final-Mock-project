@@ -1,4 +1,4 @@
-package com.example.finalmockproject.screens.component
+package com.example.finalmockproject.items
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
@@ -26,8 +26,10 @@ fun ImageUrlDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Welcome new users, Enter the URL of your avatar") },
+        title = { Text(text = "Create New Account") },
         text = {
+            Text(text = "Username does not exist. Enter the avatar URL to create new account:")
+
             Column {
                 TextField(
                     value = imageUrl,
