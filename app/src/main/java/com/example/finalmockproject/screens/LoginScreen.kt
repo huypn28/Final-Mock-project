@@ -34,8 +34,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.finalmockproject.R
 import com.example.finalmockproject.items.ImageUrlDialog
-import com.example.finalmockserver.R
+import com.example.finalmockproject.viewmodel.ChatAppViewModel
 
 @Composable
 fun LoginScreen(
