@@ -1,13 +1,17 @@
 // IMyAidlInterface.aidl
 package com.example.finalmockserver;
 
-// Declare any non-default types here with import statements
+import com.example.finalmockserver.model.Message;
+import com.example.finalmockserver.model.User;
+import com.example.finalmockserver.model.RecentBox;
+import java.util.List;
 
 interface IMyAidlInterface {
-    /**
-     * Demonstrates some basic types that you can use as parameters
-     * and return values in AIDL.
-     */
-    void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat,
-            double aDouble, String aString);
+    List<Message> getMessagesForUser(int userId);
+    Message getMessageById(int messageId);
+    List<RecentBox> getRecentBoxesForUser(int userId);
+    User getUserById(int userId);
+    List<User> getAllUsers();
+    List<RecentBox> getAllRecentBox();
+    List<Message> getAllMessage();
 }
