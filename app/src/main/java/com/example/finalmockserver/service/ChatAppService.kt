@@ -94,6 +94,20 @@ class ChatAppService : Service() {
             }
         }
 
+        override fun getMessagesBetweenUsers(senderId: Int, receiverId: Int): List<Message> {
+            return runBlocking {
+                withContext(Dispatchers.IO) {
+                    messageDao.getMessagesBetweenUsers(senderId, receiverId)
+                }
+            }
+        }
+
+        override fun updateMessage(message: Message) {
+            CoroutineScope(Dispatchers.IO).launch {
+                messageDao.updateMessage(message)
+            }
+        }
+
         override fun addUser(user: User?): Int {
             return runBlocking {
                 withContext(Dispatchers.IO) {
