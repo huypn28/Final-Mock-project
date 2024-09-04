@@ -8,7 +8,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 
-//Updated
 @Entity(
     tableName = "message",
     foreignKeys = [
