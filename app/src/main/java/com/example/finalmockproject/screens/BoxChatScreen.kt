@@ -40,7 +40,7 @@ fun BoxChatScreen(
     fun onLogout() {
         viewModel.updateUserStatus(userId, "Offline")
         navController.navigate("login_screen") {
-            popUpTo("login_screen") { inclusive = true }
+            popUpTo(0) { inclusive = true }
         }
     }
     Scaffold(

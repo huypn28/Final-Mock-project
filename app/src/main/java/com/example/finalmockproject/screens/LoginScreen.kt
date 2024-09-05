@@ -72,7 +72,9 @@ fun LoginScreen(
                 viewModel.setUserId(userId)
                 viewModel.updateUserStatus(userId, "Online")
                 isLoading = false
-                navController.navigate("box_chat_screen/${userId}")
+                navController.navigate("box_chat_screen/${userId}"){
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                }
             } else {
                 showDialog = true
             }
@@ -85,7 +87,9 @@ fun LoginScreen(
             if (newUserId != null) {
                 viewModel.pairWithExistingUsers(newUserId)
                 viewModel.updateUserStatus(newUserId, "Online")
-                navController.navigate("box_chat_screen/$newUserId")
+                navController.navigate("box_chat_screen/$newUserId"){
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                }
             } else {
                 errorMessage = "Failed to create new user"
             }
