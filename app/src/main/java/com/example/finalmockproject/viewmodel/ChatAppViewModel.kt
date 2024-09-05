@@ -4,7 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.finalmockserver.IMessageReceivedCallback
 import com.example.finalmockserver.IMyAidlInterface
+import com.example.finalmockserver.IRecentBoxUpdateCallback
 import com.example.finalmockserver.IUserStatusCallback
 import com.example.finalmockserver.model.Message
 import com.example.finalmockserver.model.RecentBox
@@ -14,20 +16,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ChatAppViewModel @Inject constructor() : ViewModel(){
-    private val _messages = MutableLiveData<List<Message>>()
+class ChatAppViewModel @Inject constructor() : ViewModel() {
+    val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> = _messages
 
-    private val _users = MutableLiveData<List<User>>()
+    val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> = _users
 
-    private val _chatBoxes = MutableLiveData<List<RecentBox>>()
+    val _chatBoxes = MutableLiveData<List<RecentBox>>()
     val chatBoxes: LiveData<List<RecentBox>> = _chatBoxes
 
-    private val _userStatuses = MutableLiveData<Map<Int, String?>>()
+    val _userStatuses = MutableLiveData<Map<Int, String?>>()
     val userStatuses: LiveData<Map<Int, String?>> = _userStatuses
 
-    private val _userId = MutableLiveData<Int>()
+    val _userId = MutableLiveData<Int>()
     val userId: LiveData<Int> get() = _userId
 
 
@@ -44,6 +46,37 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
         aidlService = service
         loadUsers()
         service.registerUserStatusCallback(userStatusCallback)
+        service.registerRecentBoxUpdateCallbacks(recentBoxCallback)
+        service.registerMessageReceivedCallback(messageReceivedCallback)
+    }
+
+    fun setCurrentUserId(userId: Int) {
+        currentUserId = userId
+        updateUserStatus(userId, "Online")
+
+        loadChatBoxes()
+        loadMessagesForUser(currentUserId)
+        loadLastMessagesForChatBoxes()
+    }
+
+    private val recentBoxCallback = object : IRecentBoxUpdateCallback.Stub() {
+        override fun onRecentBoxUpdated(recentBoxId: Int, lastMessageId: Int) {
+            updateRecentBoxLocally(recentBoxId, lastMessageId)
+        }
+    }
+
+    fun updateRecentBoxLocally(recentBoxId: Int, lastMessageId: Int) {
+        viewModelScope.launch {
+            val updatedChatBoxes = _chatBoxes.value?.map {
+                if (it.recentBoxId == recentBoxId) {
+                    it.copy(lastMessageId = lastMessageId)
+                } else {
+                    it
+                }
+            } ?: emptyList()
+            _chatBoxes.postValue(updatedChatBoxes)
+            loadLastMessagesForChatBoxes()
+        }
     }
 
     private val userStatusCallback = object : IUserStatusCallback.Stub() {
@@ -52,7 +85,7 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
         }
     }
 
-    private fun updateUserStatusLocally(userId: Int, status: String) {
+    fun updateUserStatusLocally(userId: Int, status: String) {
         viewModelScope.launch {
             val currentStatuses = _userStatuses.value?.toMutableMap() ?: mutableMapOf()
             currentStatuses[userId] = status
@@ -60,6 +93,21 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
         }
     }
 
+    private val messageReceivedCallback = object : IMessageReceivedCallback.Stub() {
+        override fun onMessageReceived(message: Message) {
+            handleReceivedMessage(message)
+        }
+    }
+
+    fun handleReceivedMessage(message: Message) {
+        viewModelScope.launch {
+            val updatedMessages = _messages.value?.toMutableList() ?: mutableListOf()
+            updatedMessages.add(message)
+            _messages.postValue(updatedMessages)
+
+            updateLastMessageForRecentBox(message.senderId, message.receiverId, message.messageId)
+        }
+    }
 
     fun loadUsers() {
         viewModelScope.launch {
@@ -76,6 +124,22 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
             } catch (e: Exception) {
                 e.printStackTrace()
                 _users.value = emptyList()
+            }
+        }
+    }
+
+    fun loadChatBoxes() {
+        viewModelScope.launch {
+            try {
+                aidlService?.let { service ->
+                    val chatBoxesForUser = service.getRecentBoxesForUser(currentUserId)
+                    _chatBoxes.value = chatBoxesForUser ?: emptyList()
+                } ?: run {
+                    _chatBoxes.value = emptyList()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _chatBoxes.value = emptyList()
             }
         }
     }
@@ -97,9 +161,34 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
         }
     }
 
+    fun getUserById(userId: Int): User? {
+        return _users.value?.find { it.userId == userId }
+    }
+
     fun getMessagesForUser(senderId: Int, receiverId: Int) {
         aidlService?.let {
             val messages = it.getMessagesBetweenUsers(senderId, receiverId)
+            _messages.postValue(messages)
+        }
+    }
+
+    fun sendMessage(senderId: Int, receiverId: Int, messageText: String) {
+        aidlService?.let {
+            val message = Message(
+                senderId = senderId,
+                receiverId = receiverId,
+                message = messageText,
+                time = System.currentTimeMillis().toString()
+            )
+            it.sendMessage(message)
+            getMessagesForUser(senderId, receiverId)
+            updateLastMessageForRecentBox(senderId, receiverId, message.messageId)
+        }
+    }
+
+    private fun loadMessagesForUser(userId: Int) {
+        aidlService?.let {
+            val messages = it.getMessagesForUser(userId)
             _messages.postValue(messages)
         }
     }
@@ -110,6 +199,21 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
                 aidlService?.updateUserStatus(userId, status)
             } catch (e: Exception) {
                 e.printStackTrace()
+            }
+        }
+    }
+
+    private fun updateLastMessageForRecentBox(senderId: Int, receiverId: Int, lastMessageId: Int) {
+        viewModelScope.launch {
+            aidlService?.let { service ->
+                val chatBoxId = service.getRecentBoxesForUser(currentUserId).find {
+                    (it.user1Id == senderId && it.user2Id == receiverId) ||
+                            (it.user1Id == receiverId && it.user2Id == senderId)
+                }?.recentBoxId ?: return@launch
+
+                service.updateLastMessageForRecentBox(chatBoxId, lastMessageId)
+                loadLastMessagesForChatBoxes()
+                loadChatBoxes()
             }
         }
     }
@@ -192,6 +296,21 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
         return aidlService?.getMessageById(messageId)
     }
 
+    fun deleteMessage(message: Message, currentUserId: Int) {
+        viewModelScope.launch {
+            val updatedDeletedByUserId = message.deletedByUserId?.toMutableList() ?: mutableListOf()
+            if (!updatedDeletedByUserId.contains(currentUserId.toString())) {
+                updatedDeletedByUserId.add(currentUserId.toString())
+            }
+            val updatedMessage = message.copy(deletedByUserId = updatedDeletedByUserId)
+            aidlService?.let { service ->
+                service.sendMessage(updatedMessage)
+                getMessagesForUser(message.senderId, message.receiverId)
+                loadLastMessagesForChatBoxes()
+            }
+        }
+    }
+
     fun deleteChat(currentUserId: Int, receiverUserId: Int) {
         viewModelScope.launch {
             val messages =
@@ -216,6 +335,8 @@ class ChatAppViewModel @Inject constructor() : ViewModel(){
             updateUserStatus(currentUserId, "Offline")
         }
         aidlService?.unregisterUserStatusCallback(userStatusCallback)
+        aidlService?.unregisterRecentBoxUpdateCallbacks(recentBoxCallback)
+        aidlService?.unregisterMessageReceivedCallback(messageReceivedCallback)
     }
 
 }

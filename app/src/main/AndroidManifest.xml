@@ -8,6 +8,8 @@
 
     <uses-permission android:name="android.permission.BIND_SERVICE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".MyApplication"
@@ -24,6 +26,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:configChanges="orientation|screenSize|fontScale|screenLayout|smallestScreenSize"
+            android:screenOrientation="unspecified"
             android:theme="@style/Theme.FinalMockProject">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,6 +35,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".notification.NotificationReplyReceiver" android:exported="true"
+            tools:ignore="ExportedReceiver" />
+        <service android:name=".service.MessageService" android:exported="false"/>
     </application>
 
 </manifest>

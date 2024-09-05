@@ -31,19 +31,19 @@ android {
             )
         }
     }
-//    flavorDimensions += "version"
-//    productFlavors {
-//        create("A") {
-//            dimension = "version"
-//            applicationIdSuffix = ".a"
-//            versionNameSuffix = "-a"
-//        }
-//        create("B") {
-//            dimension = "version"
-//            applicationIdSuffix = ".b"
-//            versionNameSuffix = "-b"
-//        }
-//    }
+    flavorDimensions += "version"
+    productFlavors {
+        create("A") {
+            dimension = "version"
+            applicationIdSuffix = ".a"
+            versionNameSuffix = "-a"
+        }
+        create("B") {
+            dimension = "version"
+            applicationIdSuffix = ".b"
+            versionNameSuffix = "-b"
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -53,7 +53,7 @@ android {
     }
     buildFeatures {
         compose = true
-        aidl=true
+        aidl = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -130,7 +131,29 @@ dependencies {
 
     implementation("androidx.paging:paging-compose:3.2.1")
 
-    implementation ("com.google.accompanist:accompanist-pager:0.30.1")
+    implementation("com.google.accompanist:accompanist-pager:0.30.1")
 
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(kotlin("script-runtime"))
+
+// Mockito
+    testImplementation("org.mockito:mockito-core:3.12.4")
+
+    androidTestImplementation("org.mockito:mockito-android:2.24.5")
+    androidTestImplementation("android.arch.core:core-testing:1.1.0")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.3.5")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
+    testImplementation("io.mockk:mockk:1.12.0")
+
+// For Robolectric tests.
+    testImplementation("com.google.dagger:hilt-android-testing:2.44")
+// ...with Kotlin.
+    kaptTest("com.google.dagger:hilt-android-compiler:2.44")
+
+
+// For instrumented tests.
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.44")
+// ...with Kotlin.
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
 }
