@@ -5,7 +5,9 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.RemoteCallbackList
 import android.os.RemoteException
+import com.example.finalmockserver.IMessageReceivedCallback
 import com.example.finalmockserver.IMyAidlInterface
+import com.example.finalmockserver.IRecentBoxUpdateCallback
 import com.example.finalmockserver.IUserStatusCallback
 import com.example.finalmockserver.dao.MessageDao
 import com.example.finalmockserver.dao.RecentBoxDao
@@ -21,7 +23,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-@Suppress("NAME_SHADOWING")
 @AndroidEntryPoint
 class ChatAppService : Service() {
     @Inject
@@ -34,6 +35,8 @@ class ChatAppService : Service() {
     lateinit var recentBoxDao: RecentBoxDao
 
     private val userStatusCallbacks = RemoteCallbackList<IUserStatusCallback>()
+    private val recentBoxUpdateCallbacks = RemoteCallbackList<IRecentBoxUpdateCallback>()
+    private val messageReceivedCallbacks = RemoteCallbackList<IMessageReceivedCallback>()
 
     private val binder = object : IMyAidlInterface.Stub() {
 
@@ -102,6 +105,13 @@ class ChatAppService : Service() {
             }
         }
 
+        override fun sendMessage(message: Message) {
+            CoroutineScope(Dispatchers.IO).launch {
+                messageDao.insertMessage(message)
+                notifyMessageReceived(message)
+            }
+        }
+
         override fun updateMessage(message: Message) {
             CoroutineScope(Dispatchers.IO).launch {
                 messageDao.updateMessage(message)
@@ -142,6 +152,29 @@ class ChatAppService : Service() {
         override fun unregisterUserStatusCallback(callback: IUserStatusCallback) {
             userStatusCallbacks.unregister(callback)
         }
+
+        override fun registerRecentBoxUpdateCallbacks(callback: IRecentBoxUpdateCallback) {
+            recentBoxUpdateCallbacks.register(callback)
+        }
+
+        override fun unregisterRecentBoxUpdateCallbacks(callback: IRecentBoxUpdateCallback) {
+            recentBoxUpdateCallbacks.unregister(callback)
+        }
+
+        override fun updateLastMessageForRecentBox(recentBoxId: Int, lastMessageId: Int) {
+            CoroutineScope(Dispatchers.IO).launch {
+                recentBoxDao.updateLastMessageId(recentBoxId, lastMessageId)
+                notifyRecentBoxUpdated(recentBoxId, lastMessageId)
+            }
+        }
+
+        override fun registerMessageReceivedCallback(callback: IMessageReceivedCallback) {
+            messageReceivedCallbacks.register(callback)
+        }
+
+        override fun unregisterMessageReceivedCallback(callback: IMessageReceivedCallback) {
+            messageReceivedCallbacks.unregister(callback)
+        }
     }
 
     private fun notifyUserStatusChanged(userId: Int, status: String) {
@@ -154,6 +187,30 @@ class ChatAppService : Service() {
             }
         }
         userStatusCallbacks.finishBroadcast()
+    }
+
+    private fun notifyRecentBoxUpdated(recentBoxId: Int, lastMessageId: Int) {
+        val n = recentBoxUpdateCallbacks.beginBroadcast()
+        for (i in 0 until n) {
+            try {
+                recentBoxUpdateCallbacks.getBroadcastItem(i).onRecentBoxUpdated(recentBoxId, lastMessageId)
+            } catch (e: RemoteException) {
+                e.printStackTrace()
+            }
+        }
+        recentBoxUpdateCallbacks.finishBroadcast()
+    }
+
+    private fun notifyMessageReceived(message: Message) {
+        val n = messageReceivedCallbacks.beginBroadcast()
+        for (i in 0 until n) {
+            try {
+                messageReceivedCallbacks.getBroadcastItem(i).onMessageReceived(message)
+            } catch (e: RemoteException) {
+                e.printStackTrace()
+            }
+        }
+        messageReceivedCallbacks.finishBroadcast()
     }
 
     override fun onBind(intent: Intent?): IBinder {
