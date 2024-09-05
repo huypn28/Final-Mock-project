@@ -12,11 +12,15 @@ import com.example.finalmockserver.model.Message
 import com.example.finalmockserver.model.RecentBox
 import com.example.finalmockserver.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ChatAppViewModel @Inject constructor() : ViewModel() {
+class ChatAppViewModel @Inject constructor(
+    //private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : ViewModel() {
     val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> = _messages
 

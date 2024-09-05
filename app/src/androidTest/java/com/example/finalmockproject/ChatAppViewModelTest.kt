@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.finalmockproject
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -8,6 +10,8 @@ import com.example.finalmockserver.model.RecentBox
 import com.example.finalmockserver.model.User
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.*
 import org.junit.Assert.assertEquals
@@ -29,17 +33,28 @@ class ChatAppViewModelTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    @Inject
-    lateinit var viewModel: ChatAppViewModel
-
     @Mock
     lateinit var aidlService: IMyAidlInterface
+
+    lateinit var dispatcher: CoroutineDispatcher
+
+    private lateinit var viewModel: ChatAppViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
         hiltRule.inject()
+
+        val testDispatcher = TestCoroutineDispatcher()
+        viewModel = ChatAppViewModel(testDispatcher)
     }
+
+    @After
+    fun tearDown() {
+        (dispatcher as? TestCoroutineDispatcher)?.cleanupTestCoroutines()
+    }
+
+
 
     @Test
     fun testSetUserId() {

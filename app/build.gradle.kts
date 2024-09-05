@@ -147,13 +147,13 @@ dependencies {
     testImplementation("io.mockk:mockk:1.12.0")
 
 // For Robolectric tests.
-    testImplementation("com.google.dagger:hilt-android-testing:2.44")
+    testImplementation("com.google.dagger:hilt-android-testing:2.48")
 // ...with Kotlin.
-    kaptTest("com.google.dagger:hilt-android-compiler:2.44")
+    kaptTest("com.google.dagger:hilt-android-compiler:2.48")
 
 
 // For instrumented tests.
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.44")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
 // ...with Kotlin.
-    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.44")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.48")
 }
