@@ -9,16 +9,16 @@ import com.example.finalmockserver.model.User
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertUser(user: User): Long
+    suspend fun insertUser(user: User): Long
 
     @Query("SELECT * FROM user WHERE userId = :userId")
-    fun getUserById(userId: Int): User
+    suspend fun getUserById(userId: Int): User
 
     @Query("SELECT * FROM user")
-    fun getAllUsers(): List<User>
+    suspend fun getAllUsers(): List<User>
 
     @Query("SELECT * FROM user WHERE username = :username LIMIT 1")
-    fun getUserByUsername(username: String?): User?
+    suspend fun getUserByUsername(username: String?): User?
 
     @Delete
     suspend fun deleteUser(user: User)
