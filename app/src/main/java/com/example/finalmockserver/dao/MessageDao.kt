@@ -10,20 +10,20 @@ import com.example.finalmockserver.model.Message
 @Dao
 interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMessage(message: Message)
+     fun insertMessage(message: Message)
 
     @Query("SELECT * FROM message")
-    suspend fun getAllMessages(): List<Message>
+     fun getAllMessages(): List<Message>
 
     @Query("SELECT * FROM message WHERE senderId = :userId OR receiverId = :userId")
-    suspend fun getMessagesForUser(userId: Int): List<Message>
+     fun getMessagesForUser(userId: Int): List<Message>
 
     @Query("SELECT * FROM message WHERE messageId = :messageId")
-    suspend fun getMessageById(messageId: Int): Message
+     fun getMessageById(messageId: Int): Message
 
     @Query("SELECT * FROM message WHERE (senderId = :senderId AND receiverId = :receiverId) OR (senderId = :receiverId AND receiverId = :senderId) ORDER BY time ASC")
-    suspend fun getMessagesBetweenUsers(senderId: Int, receiverId: Int): List<Message>
+     fun getMessagesBetweenUsers(senderId: Int, receiverId: Int): List<Message>
 
     @Update
-    suspend fun updateMessage(message: Message)
+     fun updateMessage(message: Message)
 }

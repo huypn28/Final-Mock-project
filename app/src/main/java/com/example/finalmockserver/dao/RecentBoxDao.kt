@@ -12,10 +12,10 @@ interface RecentBoxDao {
     suspend fun insertRecentBox(recentBox: RecentBox)
 
     @Query("SELECT * FROM recentbox")
-    suspend fun getAllRecentBox(): List<RecentBox>
+     fun getAllRecentBox(): List<RecentBox>
 
     @Query("SELECT * FROM recentbox WHERE user1Id = :userId OR user2Id = :userId")
-    suspend fun getRecentBoxesForUser(userId: Int): List<RecentBox>
+     fun getRecentBoxesForUser(userId: Int): List<RecentBox>
 
     @Query("UPDATE recentbox SET lastMessageId = :lastMessageId WHERE recentBoxId = :recentBoxId")
     suspend fun updateLastMessageId(recentBoxId: Int, lastMessageId: Int)
