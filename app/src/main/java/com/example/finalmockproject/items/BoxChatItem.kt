@@ -40,6 +40,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BoxChatItem(
+    modifier: Modifier = Modifier,
     boxChat: RecentBox,
     currentUserId: Int,
     users: List<User>,

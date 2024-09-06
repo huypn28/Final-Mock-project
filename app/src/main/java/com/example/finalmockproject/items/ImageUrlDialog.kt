@@ -28,9 +28,11 @@ fun ImageUrlDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = "Create New Account") },
         text = {
-            Text(text = "Username does not exist. Enter the avatar URL to create new account:")
-
             Column {
+                Text(
+                    text = "Username does not exist." +
+                            " If you want to create new account, please enter your avatar url:"
+                )
                 TextField(
                     value = imageUrl,
                     onValueChange = { newValue -> imageUrl = newValue },

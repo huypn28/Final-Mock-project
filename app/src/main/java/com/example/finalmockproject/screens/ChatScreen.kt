@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,13 +41,19 @@ fun ChatScreen(
 ) {
     val messages by viewModel.messages.observeAsState(emptyList())
 
+    val listState = rememberLazyListState()
+
     val receiverUser = remember(receiverId) { User(userId = receiverId) }
     val currentUser = remember(currentUserId) { User(userId = currentUserId) }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(currentUser.userId, receiverUser.userId) {
-        viewModel.getMessagesForUser(currentUser.userId, receiverUser.userId)
+    LaunchedEffect(messages) {
+        if (messages.isNotEmpty()) {
+            listState.animateScrollToItem(messages.size - 1)
+        } else {
+            listState.scrollToItem(0)
+        }
     }
 
     Scaffold(modifier = Modifier.fillMaxSize().imePadding()) { padding ->
@@ -71,6 +78,7 @@ fun ChatScreen(
                 ) {
                     LazyColumn(
                         modifier = Modifier.weight(1f),
+                        state = listState,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(messages) { message ->
@@ -105,7 +113,8 @@ fun ChatScreen(
         onConfirm = {
             viewModel.deleteChat(currentUser.userId, receiverUser.userId)
             viewModel.getMessagesForUser(currentUser.userId, receiverUser.userId)
-            navController.popBackStack()        }
+            navController.popBackStack()
+        }
     )
 }
 

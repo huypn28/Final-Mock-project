@@ -60,7 +60,7 @@ fun LoginScreen(
     }
 
     fun onLogin() {
-        if(username.isBlank()) {
+        if (username.isBlank()) {
             errorMessage = "Username cannot be empty or contain only spaces"
             return
         }
@@ -72,12 +72,15 @@ fun LoginScreen(
                 viewModel.setUserId(userId)
                 viewModel.updateUserStatus(userId, "Online")
                 isLoading = false
-                navController.navigate("box_chat_screen/${userId}")
+                navController.navigate("box_chat_screen/${userId}") {
+                    popUpTo("login_screen") { inclusive = true }
+                }
             } else {
                 showDialog = true
             }
         }
     }
+
     fun onConfirmImageUrl(imageUrl: String) {
         selectedImageUrl = imageUrl
         viewModel.addNewUser(username, selectedImageUrl) { newUserId ->
@@ -85,7 +88,9 @@ fun LoginScreen(
             if (newUserId != null) {
                 viewModel.pairWithExistingUsers(newUserId)
                 viewModel.updateUserStatus(newUserId, "Online")
-                navController.navigate("box_chat_screen/$newUserId")
+                navController.navigate("box_chat_screen/$newUserId") {
+                    popUpTo("login_screen") { inclusive = true }
+                }
             } else {
                 errorMessage = "Failed to create new user"
             }

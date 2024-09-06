@@ -19,7 +19,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatAppViewModel @Inject constructor(
-    //private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> = _messages
@@ -38,7 +37,7 @@ class ChatAppViewModel @Inject constructor(
 
 
     fun setUserId(userId: Int) {
-        _userId.value = userId
+        _userId.postValue(userId)
     }
 
     var currentUserId: Int = -1
@@ -127,7 +126,7 @@ class ChatAppViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _users.value = emptyList()
+                _users.postValue(emptyList())
             }
         }
     }
@@ -143,7 +142,7 @@ class ChatAppViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _chatBoxes.value = emptyList()
+                _users.postValue(emptyList())
             }
         }
     }
@@ -172,7 +171,12 @@ class ChatAppViewModel @Inject constructor(
     fun getMessagesForUser(senderId: Int, receiverId: Int) {
         aidlService?.let {
             val messages = it.getMessagesBetweenUsers(senderId, receiverId)
-            _messages.postValue(messages)
+
+            val filteredMessages = messages.filter { message ->
+                message.deletedByUserId?.contains(currentUserId.toString()) == false
+            }
+
+            _messages.postValue(filteredMessages)
         }
     }
 
@@ -190,7 +194,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    private fun loadMessagesForUser(userId: Int) {
+     fun loadMessagesForUser(userId: Int) {
         aidlService?.let {
             val messages = it.getMessagesForUser(userId)
             _messages.postValue(messages)
@@ -207,7 +211,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    private fun updateLastMessageForRecentBox(senderId: Int, receiverId: Int, lastMessageId: Int) {
+    fun updateLastMessageForRecentBox(senderId: Int, receiverId: Int, lastMessageId: Int) {
         viewModelScope.launch {
             aidlService?.let { service ->
                 val chatBoxId = service.getRecentBoxesForUser(currentUserId).find {
@@ -267,7 +271,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    private fun loadLastMessagesForChatBoxes() {
+     fun loadLastMessagesForChatBoxes() {
         viewModelScope.launch {
             aidlService?.let { service ->
                 val chatBoxesForUser = service.getRecentBoxesForUser(currentUserId)
@@ -333,7 +337,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
+    public override fun onCleared() {
         super.onCleared()
         if (currentUserId != -1) {
             updateUserStatus(currentUserId, "Offline")

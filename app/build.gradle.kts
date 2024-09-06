@@ -1,8 +1,11 @@
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("jacoco")
 }
 
 android {
@@ -63,6 +66,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    defaultConfig {
+        testInstrumentationRunner ="androidx.test.runner.AndroidJUnitRunner"
+    }
+
+
+
 }
 
 dependencies {
@@ -137,14 +146,13 @@ dependencies {
     implementation(kotlin("script-runtime"))
 
 // Mockito
-    testImplementation("org.mockito:mockito-core:3.12.4")
 
-    androidTestImplementation("org.mockito:mockito-android:2.24.5")
+    androidTestImplementation("org.mockito:mockito-android:5.13.0")
     androidTestImplementation("android.arch.core:core-testing:1.1.0")
     androidTestImplementation("androidx.navigation:navigation-testing:2.3.5")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
-    testImplementation("io.mockk:mockk:1.12.0")
+
 
 // For Robolectric tests.
     testImplementation("com.google.dagger:hilt-android-testing:2.48")
@@ -156,4 +164,22 @@ dependencies {
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
 // ...with Kotlin.
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.48")
+
+    testImplementation(kotlin("test-junit5"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
+    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-params
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.0")
+// https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testImplementation("org.mockito:mockito-core:3.11.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.11.1")
+
+    // https://mvnrepository.com/artifact/io.mockk/mockk
+    testImplementation("io.mockk:mockk:1.11.0")
+// https://mvnrepository.com/artifact/org.junit.platform/junit-platform-runner
+
+    testImplementation ("org.junit.platform:junit-platform-suite-api:1.7.0")
+    testImplementation ("org.junit.platform:junit-platform-runner:1.2.0")
+
 }
+
