@@ -12,27 +12,25 @@ import com.example.finalmockserver.model.Message
 import com.example.finalmockserver.model.RecentBox
 import com.example.finalmockserver.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatAppViewModel @Inject constructor(
 ) : ViewModel() {
-    val _messages = MutableLiveData<List<Message>>()
+    private val _messages = MutableLiveData<List<Message>>()
     val messages: LiveData<List<Message>> = _messages
 
-    val _users = MutableLiveData<List<User>>()
+    private val _users = MutableLiveData<List<User>>()
     val users: LiveData<List<User>> = _users
 
-    val _chatBoxes = MutableLiveData<List<RecentBox>>()
+    private val _chatBoxes = MutableLiveData<List<RecentBox>>()
     val chatBoxes: LiveData<List<RecentBox>> = _chatBoxes
 
-    val _userStatuses = MutableLiveData<Map<Int, String?>>()
+    private val _userStatuses = MutableLiveData<Map<Int, String?>>()
     val userStatuses: LiveData<Map<Int, String?>> = _userStatuses
 
-    val _userId = MutableLiveData<Int>()
+    private val _userId = MutableLiveData<Int>()
     val userId: LiveData<Int> get() = _userId
 
 
