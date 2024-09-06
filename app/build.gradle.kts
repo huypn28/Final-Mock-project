@@ -1,4 +1,4 @@
-
+@file:Suppress("DEPRECATION")
 
 plugins {
     alias(libs.plugins.android.application)
@@ -24,7 +24,9 @@ android {
             useSupportLibrary = true
         }
     }
-
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -58,6 +60,7 @@ android {
         compose = true
         aidl = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
@@ -66,14 +69,41 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    defaultConfig {
-        testInstrumentationRunner ="androidx.test.runner.AndroidJUnitRunner"
+    buildTypes {
+        debug {
+            enableAndroidTestCoverage= true
+        }
     }
-
-
-
+}
+jacoco {
+    toolVersion = "0.8.7"
+}
+tasks.withType<Test> {
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
 }
 
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val fileFilter = listOf("**/R.class", "**/R\$*.class", "**/BuildConfig.*", "**/Manifest*.*", "**/*Test*.*")
+    val debugTree = fileTree("${project.buildDir}/intermediates/javac/debug") {
+        exclude(fileFilter)
+    }
+    val mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(files("${project.buildDir}/jacoco/testDebugUnitTest.exec"))
+}
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -86,10 +116,12 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.junit.jupiter)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
@@ -145,14 +177,15 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation(kotlin("script-runtime"))
 
-// Mockito
-
+    // Mockito
     androidTestImplementation("org.mockito:mockito-android:5.13.0")
     androidTestImplementation("android.arch.core:core-testing:1.1.0")
+    testImplementation("android.arch.core:core-testing:1.1.0")
     androidTestImplementation("androidx.navigation:navigation-testing:2.3.5")
-    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("org.mockito.kotlin:mockito-kotlin:3.2.0")
-
+    testImplementation ("org.mockito:mockito-inline:3.11.1")
 
 // For Robolectric tests.
     testImplementation("com.google.dagger:hilt-android-testing:2.48")
@@ -178,8 +211,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.11.0")
 // https://mvnrepository.com/artifact/org.junit.platform/junit-platform-runner
 
-    testImplementation ("org.junit.platform:junit-platform-suite-api:1.7.0")
-    testImplementation ("org.junit.platform:junit-platform-runner:1.2.0")
-
+    testImplementation("org.junit.platform:junit-platform-suite-api:1.7.0")
+    testImplementation("org.junit.platform:junit-platform-runner:1.2.0")
 }
-

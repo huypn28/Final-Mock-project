@@ -60,7 +60,7 @@ class ChatAppViewModel @Inject constructor(
         loadLastMessagesForChatBoxes()
     }
 
-    private val recentBoxCallback = object : IRecentBoxUpdateCallback.Stub() {
+    val recentBoxCallback = object : IRecentBoxUpdateCallback.Stub() {
         override fun onRecentBoxUpdated(recentBoxId: Int, lastMessageId: Int) {
             updateRecentBoxLocally(recentBoxId, lastMessageId)
         }
@@ -80,7 +80,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    private val userStatusCallback = object : IUserStatusCallback.Stub() {
+    val userStatusCallback = object : IUserStatusCallback.Stub() {
         override fun onUserStatusChanged(userId: Int, status: String) {
             updateUserStatusLocally(userId, status)
         }
@@ -94,7 +94,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-    private val messageReceivedCallback = object : IMessageReceivedCallback.Stub() {
+    val messageReceivedCallback = object : IMessageReceivedCallback.Stub() {
         override fun onMessageReceived(message: Message) {
             handleReceivedMessage(message)
         }
@@ -192,7 +192,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-     fun loadMessagesForUser(userId: Int) {
+    fun loadMessagesForUser(userId: Int) {
         aidlService?.let {
             val messages = it.getMessagesForUser(userId)
             _messages.postValue(messages)
@@ -269,7 +269,7 @@ class ChatAppViewModel @Inject constructor(
         }
     }
 
-     fun loadLastMessagesForChatBoxes() {
+    fun loadLastMessagesForChatBoxes() {
         viewModelScope.launch {
             aidlService?.let { service ->
                 val chatBoxesForUser = service.getRecentBoxesForUser(currentUserId)
